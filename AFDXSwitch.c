@@ -60,7 +60,9 @@ void callback(u_char *useless,const struct pcap_pkthdr* header,const u_char* pac
 	struct ipheader *v4hdr=NULL;
 	struct udpheader *uhdr=NULL;
 	char *payload;
-
+	int VlinkID;
+	pcap_t* adhandle;
+	char errbuf[PCAP_ERRBUF_SIZE];
 	
 	int size_payload=58;
 	
@@ -72,6 +74,7 @@ void callback(u_char *useless,const struct pcap_pkthdr* header,const u_char* pac
 	v4hdr = (struct ipheader*)(packet + SIZE_ETHERNET);
 	uhdr  = (struct udpheader*)(packet + SIZE_ETHERNET + SIZE_IP);
 	payload = (u_char *)(packet + SIZE_ETHERNET + SIZE_IP + SIZE_UDP);
+	VlinkID = ethdr->ether_dhost[5];
 
 	printf("\n---------------------------------------------------------------------\n");
 	// Print all raw packet
@@ -84,7 +87,7 @@ void callback(u_char *useless,const struct pcap_pkthdr* header,const u_char* pac
             if ( (i % 16) == 0) printf("\n");
  
             // Print each octet as hex (x), make sure there is always two characters (.2).
-            printf("%.2x ", packet[i]);
+            printf("%.2d ", packet[i]);
         }
  
         // Add two lines between packets
@@ -93,10 +96,10 @@ void callback(u_char *useless,const struct pcap_pkthdr* header,const u_char* pac
 	/* print source and destination IP addresses */
 	printf("From		: %s\n", inet_ntoa(*(struct in_addr *)&v4hdr->ip_srcaddr));
 	printf("To		: %s\n", inet_ntoa(*(struct in_addr *)&v4hdr->ip_destaddr));
-	printf("Virtual Link ID : %.2x",ethdr->ether_dhost[5]);
+	printf("Virtual Link ID : %.2x",VlinkID);
 	printf("\n---------------------------------------------------------------------\n");
 	printf("\nPayload : \n");
-
+	
 	/* hex */
 	  for ( i=0; (i < size_payload ) ; i++)
         {
@@ -107,10 +110,24 @@ void callback(u_char *useless,const struct pcap_pkthdr* header,const u_char* pac
             printf("%.2x ", *payload);
 	    payload++;
         }
+
+	//Packet Forwarding
+
+	if(VlinkID == 0x4) 
+	     {
+		
+		adhandle = pcap_open_live("eth0", 65536, 1,1, errbuf);	
+		pcap_sendpacket(adhandle, packet, header->len); 
+	     } 
+	else if( VlinkID == 0x3)
+	     {
+		printf("Packet Rejected"); 
+	     }
  
         // Add two lines between packets
         printf("\n\n");
 	printf("\n---------------------------------------------------------------------\n");
+
 	
 }
 
