@@ -56,14 +56,16 @@ int main(int argc, char **argv)
 	u_char packet[100];
 	int i=0;
 	u_char *dev;
+   	bpf_u_int32 pNet;             /* ip address*/
+	struct bpf_program fp;        /* to hold compiled program */
 
 	struct ipheader       *v4hdr=NULL;
 	struct udpheader       *uhdr=NULL;
 	struct ethernetHeader *ethdr=NULL;
 
-	printf("\n---------------------------------------------------------------------------------------\n");
+	printf("\n------------------------------------------------------------------------\n");
 	printf("\nAFDX TRANSMITTER PROTOTYPE\n");
-	printf("\n---------------------------------------------------------------------------------------\n");
+	printf("\n------------------------------------------------------------------------\n");
 	//Pilih interface yang dipakai
 	if(argv[1] == NULL) 
 	{
@@ -93,6 +95,9 @@ int main(int argc, char **argv)
 		return 2;
 	}
 
+	pcap_compile(adhandle, &fp, "len <= 100", 1, pNet);
+    	pcap_setfilter(adhandle, &fp);
+
 	//ethernet header 14 bytes 0 - 13
  	ethdr = (struct ethernetHeader*)(packet);
 
@@ -103,7 +108,7 @@ int main(int argc, char **argv)
        /* To define virtual link ID */
     	printf("\nPlease enter Virtual Link ID : ");
     	scanf("%hhu",&vlinkID);
-	printf("\n---------------------------------------------------------------------------------------\n");
+	printf("\n------------------------------------------------------------------------\n");
 
 
 	/* mac destination set sesuai AFDX part 7 */
@@ -153,25 +158,42 @@ int main(int argc, char **argv)
 
 
 	/* Payload */
-	for(i=42;i<100;i++)
+	for(i=42;i<150;i++)
 	{
 		packet[i]= i;
 	}
 
+	if (vlinkID == 01 ) {
 	/* Send down the packet */
 	printf("\nPacket Sent...\n");
 	if (pcap_sendpacket(adhandle,	// Adapter
 		packet,				// buffer with the packet
-		100					// size
+		150					// packet size
 		) != 0)
 	{
 		fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(adhandle));
 		return 3;
 	}
-	  
-	printf("\n---------------------------------------------------------------------------------------\n");
+	} 
+	
+	else if (vlinkID == 04 ) {
+	/* Send down the packet */
+	printf("\nPacket Sent...\n");
+	if (pcap_sendpacket(adhandle,	// Adapter
+		packet,				// buffer with the packet
+		150					// packet size
+		) != 0)
+	{
+		fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(adhandle));
+		return 3;
+	}
+	
+	
+	else {printf("\nVirtual Link ID %.2x is not defined in this device or already used in another device\n",vlinkID);}
+	printf("\n------------------------------------------------------------------------\n");
 	pcap_close(adhandle);	
 	return 0;
 	  
 }
+
 
