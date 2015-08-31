@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h> 
+#include <libconfig.h>
 
  /* ethernet headers are always exactly 14 bytes [1] */
 #define SIZE_ETHERNET 14
@@ -62,10 +63,17 @@ void callback(u_char *useless,const struct pcap_pkthdr* header,const u_char* pac
 	char *payload;
 	int VlinkID;
 	pcap_t* adhandle;
+	pcap_t* adhandle2;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	
 	int size_payload=58;
-	
+	config_t cfg;               /*Returns all parameters in this structure */
+    	config_setting_t *setting;
+    	const char *dev1, *dev2, *dev3, *dev4, *dev5, *dev6, *dev7, *dev8, *dev9, *dev10 ;
+    	int EsAm, EsAu, EsBm, EsBu, EsCm, EsCu;
+    
+ 
+   	char *config_file_name = "VLConfig.cfg";
 
 
 	//TypeCasting packet header
@@ -113,17 +121,220 @@ void callback(u_char *useless,const struct pcap_pkthdr* header,const u_char* pac
 
 	//Packet Forwarding
 
-	if(VlinkID == 0x4) 
+	/*Initialization */
+    config_init(&cfg);
+ 
+    /* Read the file. If there is an error, report it and exit. */
+    if (!config_read_file(&cfg, config_file_name))
+    {
+        printf("\n%s:%d - %s", config_error_file(&cfg), config_error_line(&cfg), config_error_text(&cfg));
+        config_destroy(&cfg);
+        
+    }
+ 
+    /* Get the configuration file name. */
+    if (config_lookup_string(&cfg, "filename", &dev1))
+        printf("\nFile Type: %s", dev1);
+    else
+        printf("\nNo 'filename' setting in configuration file.");
+ 
+    /*Read the parameter group*/
+
+
+ setting = config_lookup(&cfg, "VirtualLinkConfig");
+    if (setting != NULL)
+    {
+        /*Read the string*/
+        if (config_setting_lookup_int(setting, "EsAm", &EsAm))
+        {
+         //   printf("\nVL ID EndSystem A: %.2x ", EsA);
+        }
+        else
+            printf("\nNo 'param1' setting in configuration file.");
+		
+	/*Read the string*/
+        if (config_setting_lookup_int(setting, "EsAu", &EsAu))
+        {
+         //   printf("\nVL ID EndSystem A: %.2x ", EsA);
+        }
+        else
+            printf("\nNo 'param1' setting in configuration file.");	
+		
+ 
+        /*Read the string*/
+        if (config_setting_lookup_int(setting, "EsBm", &EsBm))
+        {
+         //   printf("\nVL ID EndSystem B: %.2x ", EsB);
+        }
+        else
+            printf("\nNo 'param2' setting in configuration file.");
+ 
+        printf("\n");
+		
+		/*Read the string*/
+        if (config_setting_lookup_int(setting, "EsBu", &EsBu))
+        {
+         //   printf("\nVL ID EndSystem B: %.2x ", EsB);
+        }
+        else
+            printf("\nNo 'param2' setting in configuration file.");
+ 
+        printf("\n");
+		
+		
+		/*Read the string*/
+        if (config_setting_lookup_int(setting, "EsCm", &EsCm))
+        {
+         //   printf("\nVL ID EndSystem B: %.2x ", EsB);
+        }
+        else
+            printf("\nNo 'param2' setting in configuration file.");
+ 
+        printf("\n");
+		
+		/*Read the string*/
+        if (config_setting_lookup_int(setting, "EsCu", &EsCu))
+        {
+         //   printf("\nVL ID EndSystem B: %.2x ", EsB);
+        }
+        else
+            printf("\nNo 'param2' setting in configuration file.");
+ 
+        printf("\n");
+
+	/*Read the string*/
+        if (config_setting_lookup_string(setting, "VLID01a", &dev2))
+        {
+        //    printf("\nVL 01 Destination Port: %s", dev2);
+        }
+        else
+            printf("\nNo 'param1' setting in configuration file.");
+		
+		 if (config_setting_lookup_string(setting, "VLID01b", &dev8))
+        {
+        //    printf("\nVL 01 Destination Port: %s", dev2);
+        }
+        else
+            printf("\nNo 'param1' setting in configuration file.");
+ 
+        /*Read the string*/
+        if (config_setting_lookup_string(setting, "VLID02a", &dev3))
+        {
+        //    printf("\nVL 02 Destination Port: %s", str3);
+        }
+        else
+            printf("\nNo 'param2' setting in configuration file.");
+		
+		 if (config_setting_lookup_string(setting, "VLID02b", &dev9))
+        {
+        //    printf("\nVL 02 Destination Port: %s", str3);
+        }
+        else
+            printf("\nNo 'param2' setting in configuration file.");
+		
+		
+		if (config_setting_lookup_string(setting, "VLID03a", &dev4))
+        {
+        //    printf("\nVL 01 Destination Port: %s", dev2);
+        }
+        else
+            printf("\nNo 'param1' setting in configuration file.");
+		
+		if (config_setting_lookup_string(setting, "VLID03b", &dev10))
+        {
+        //    printf("\nVL 01 Destination Port: %s", dev2);
+        }
+        else
+            printf("\nNo 'param1' setting in configuration file.");
+ 
+        /*Read the string*/
+        if (config_setting_lookup_string(setting, "VLID04", &dev5))
+        {
+        //    printf("\nVL 02 Destination Port: %s", str3);
+        }
+        else
+            printf("\nNo 'param2' setting in configuration file.");
+		
+		    if (config_setting_lookup_string(setting, "VLID05", &dev6))
+        {
+        //    printf("\nVL 01 Destination Port: %s", dev2);
+        }
+        else
+            printf("\nNo 'param1' setting in configuration file.");
+ 
+        /*Read the string*/
+        if (config_setting_lookup_string(setting, "VLID06", &dev7))
+        {
+        //    printf("\nVL 02 Destination Port: %s", str3);
+        }
+        else
+            printf("\nNo 'param2' setting in configuration file.");
+ 
+        printf("\n");
+
+	}
+	int EndSystem = VlinkID;
+/*	switch(EndSystem)
+    {
+    case EsA :
+        adhandle = pcap_open_live(str2, 65536, 1,1, errbuf);	
+	pcap_sendpacket(adhandle, packet, header->len);
+        break;
+    case EsB :
+        adhandle = pcap_open_live(str3, 65536, 1,1, errbuf);	
+	pcap_sendpacket(adhandle, packet, header->len);
+        break;
+    } */
+	
+	if(EndSystem == EsAm) 
 	     {
 		
-		adhandle = pcap_open_live("eth0", 65536, 1,1, errbuf);	
+		adhandle = pcap_open_live(dev2, 65536, 1,1, errbuf);	
 		pcap_sendpacket(adhandle, packet, header->len); 
+		pcap_close(adhandle);
+		adhandle2 = pcap_open_live(dev8, 65536, 1,1, errbuf);	
+		pcap_sendpacket(adhandle2, packet, header->len); 
 	     } 
-	else if( VlinkID == 0x3)
+	if( EndSystem == EsBm)
 	     {
-		printf("Packet Rejected"); 
-	     }
- 
+		adhandle = pcap_open_live(dev3, 65536, 1,1, errbuf);	
+		pcap_sendpacket(adhandle, packet, header->len); 
+		pcap_close(adhandle);
+		adhandle2 = pcap_open_live(dev9, 65536, 1,1, errbuf);	
+		pcap_sendpacket(adhandle2, packet, header->len); 
+	     } 
+		 
+	if( EndSystem == EsCm)
+	     {
+		adhandle = pcap_open_live(dev4, 65536, 1,1, errbuf);	
+		pcap_sendpacket(adhandle, packet, header->len); 
+		pcap_close(adhandle);
+		adhandle2 = pcap_open_live(dev10, 65536, 1,1, errbuf);	
+		pcap_sendpacket(adhandle2, packet, header->len); 
+	     } 	 
+		 
+	if( EndSystem == EsAu)
+	     {
+		adhandle = pcap_open_live(dev5, 65536, 1,1, errbuf);	
+		pcap_sendpacket(adhandle, packet, header->len); 
+		pcap_close(adhandle);
+		
+	     } 		 
+	if( EndSystem == EsBu)
+	     {
+		adhandle = pcap_open_live(dev6, 65536, 1,1, errbuf);	
+		pcap_sendpacket(adhandle, packet, header->len); 
+		pcap_close(adhandle);
+		
+	     } 
+
+	if( EndSystem == EsCu)
+	     {
+		adhandle = pcap_open_live(dev7, 65536, 1,1, errbuf);	
+		pcap_sendpacket(adhandle, packet, header->len); 
+		pcap_close(adhandle);
+		
+	     } 		 
         // Add two lines between packets
         printf("\n\n");
 	printf("\n---------------------------------------------------------------------\n");
@@ -143,6 +354,9 @@ void pktinit(char *dev) /*function: for individual interface packet capturing*/
     int i =0;
     pcap_lookupnet(dev, &pNet, &pMask, errbuf);
     adhandle = pcap_open_live(dev, 65536, 1,1, errbuf);
+    pcap_setdirection(adhandle,PCAP_D_IN);
+    pcap_compile(adhandle, &fp, "len <= 64 and len >= 1518", 1, pNet);
+    pcap_setfilter(adhandle, &fp);
     if(adhandle == NULL)
     {
         printf("pcap_open_live() failed due to [%s]\n", errbuf);
