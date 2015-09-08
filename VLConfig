@@ -1,0 +1,35 @@
+Lampiran A : VIRTUAL LINK CONFIGURATION
+
+//VLConfig.cfg
+// Basic Information:
+filename = "Virtual Link Configuration";
+ 
+
+// Parameters
+
+VirtualLinkConfig = 
+{
+//Virtual Link Port Definition
+VLID01a 	= "eth1";
+VLID01b 	= "eth2";
+VLID02a 	= "eth0";
+VLID02b 	= "eth2";
+VLID03a	= "eth0";
+VLID03b	= "eth1";
+VLID04	= "eth1";
+VLID05	= "eth2";
+VLID06	= "eth0";
+VLID07	= "lo";
+VLID08	= "lo";
+VLID09	= "lo”;
+		
+
+//End System VLID Definiton
+EsAa = 0x01;
+EsAb = 0x04;
+EsBa = 0x02;
+EsBb = 0x05;
+EsCa = 0x03;
+EsCb = 0x06;
+};
+
